@@ -3,15 +3,20 @@
  <head>
  	<meta charset="utf-8">
 	<title>JavaScript Pencil</title>
+	<script type="text/javascript" src="matrix.js"></script>
 	<script type="text/javascript" src="pencil.js"></script>
  </head>
  <body>
  	<h1>JavaScipt Pencil</h1>
- 	<canvas id="test" width="600" height="450"></canvas>
+ 	<h3>原图</h3>
+ 	<img src="58.jpg">
+ 	<h3>铅笔画</h3>
+ 	<canvas id="test"></canvas>
  	<script type="text/javascript">
  		p = new PencilDraw({
  			"url": "58.jpg"
  		});
+ 		p.draw(document.getElementById("test"));
  	</script>
  </body>
 </html>
