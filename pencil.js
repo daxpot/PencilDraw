@@ -199,6 +199,7 @@ PencilDraw.prototype = {
 			this._drawcanvas = canvas;
 			return;
 		}
+ 		var st = new Date().getTime();
 		var w = this._img.naturalWidth;
 		var h = this._img.naturalHeight;
 		this._canvas.width = w;
@@ -222,5 +223,7 @@ PencilDraw.prototype = {
         canvas.width = w;
         canvas.height = h;
         context.putImageData(imgdata, 0, 0, 0, 0, w, h);
+ 		var et = new Date().getTime();
+ 		console.log("time", (et-st)/1000, "seconds");
 	}
 }

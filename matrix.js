@@ -34,15 +34,15 @@ Matrix.prototype = {
 	},
 
 	_getindex: function(suffix) {
-		for (var i=suffix.length-1; i<this.shape.length; i++) {
-			suffix.push(0); //不足部分补充0
-		}
+		// for (var i=suffix.length-1; i<this.shape.length; i++) {
+		// 	suffix.push(0); //不足部分补充0
+		// }
 		var product = 1;
 		var index = 0;
 		for (var i=this.shape.length-1; i>=0; i--) {
-			if (suffix[i] >= this.shape[i]) {
-				throw "index out of limit"
-			}
+			// if (suffix[i] >= this.shape[i]) {
+			// 	throw "index out of limit"
+			// }
 			index += product*suffix[i];
 			product *= this.shape[i];
 		}
@@ -51,9 +51,9 @@ Matrix.prototype = {
 
 	get: function(suffix) {
 		var index = this._getindex(suffix);
-		if (isNaN(index)) {
-			throw "suffix type is not support";
-		}
+		// if (isNaN(index)) {
+		// 	throw "suffix type is not support";
+		// }
 		return this.data[index];
 	},
 
@@ -342,7 +342,8 @@ var MatLib = {
 				// 	}
 				// }
 				for(var k=0; k<nozeros.length; k++) {
-					sum += nozeros[k][2]*mat1_ext.get([nozeros[k][0] + i, nozeros[k][1]+j]);
+					// sum += nozeros[k][2]*mat1_ext.get([nozeros[k][0] + i, nozeros[k][1]+j]);
+					sum += mat1_ext.get([nozeros[k][0] + i, nozeros[k][1]+j]);	//去除一个乘法减少计算量
 				}
 				mat.set([i, j], sum);
 			}
