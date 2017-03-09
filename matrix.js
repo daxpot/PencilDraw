@@ -5,6 +5,12 @@ var Matrix = function(data, shape, datatype) {
 	for (var i=0; i<shape.length; i++) {
 		this.size *= this.shape[i];
 	}
+	this.suffix = [];
+	var product = 1;
+	for (var i=this.shape.length-1; i>=0; i--) {
+		this.suffix.unshift(product);
+		product *= this.shape[i];
+	}
 	datatype == undefined ? datatype = Float32Array : true;
 	this.data = new datatype(this.size);
 	this.datatype = datatype;
@@ -39,13 +45,17 @@ Matrix.prototype = {
 		// }
 		var product = 1;
 		var index = 0;
-		for (var i=this.shape.length-1; i>=0; i--) {
-			// if (suffix[i] >= this.shape[i]) {
-			// 	throw "index out of limit"
-			// }
-			index += product*suffix[i];
-			product *= this.shape[i];
+		// for (var i=this.shape.length-1; i>=0; i--) {
+		// 	// if (suffix[i] >= this.shape[i]) {
+		// 	// 	throw "index out of limit"
+		// 	// }
+		// 	index += product*suffix[i];
+		// 	product *= this.shape[i];
+		// }
+		for(var i=0; i<this.shape.length-1; i++) {
+			index += this.suffix[i]*suffix[i];
 		}
+		index += suffix[i];			//this.suffix 最后一位为1， 尽量少做一次乘法
 		return index;
 	},
 
@@ -58,22 +68,22 @@ Matrix.prototype = {
 	},
 
 	set: function(suffix, value) {
-		if (isNaN(value)) {
-			throw "NaN value error";
-		}
+		// if (isNaN(value)) {
+		// 	throw "NaN value error";
+		// }
 		var index = this._getindex(suffix);
 		this.data[index] = value;
 	},
 
 	abs: function() {
-		for (var i=1; i<this.data.length; i++) {
+		for (var i=0; i<this.data.length; i++) {
 			this.data[i] = Math.abs(this.data[i])
 		}
 		return this;
 	},
 
 	sqrt: function() {
-		for (var i=1; i<this.data.length; i++) {
+		for (var i=0; i<this.data.length; i++) {
 			this.data[i] = Math.sqrt(this.data[i])
 		}
 		return this;
@@ -322,45 +332,60 @@ var MatLib = {
 
 		//考虑mat2大部分都是0，因此简化计算量
 		var nozeros = [];  //记录mat2中非0元素
+		var ones = []; 	   //记录mat2中1的元素
 		for (var k=0; k<mat2.shape[0]; k++) {
 			for (var l=0; l<mat2.shape[1]; l++) {
 				var v = mat2.get([k, l]);
-				if(v!= 0) {
+				if(v == 1) {
+					ones.push([k, l, v]);
+				}
+				else if(v!= 0) {
 					nozeros.push([k, l, v]);
 				}
 			}
 		}
-		console.log("conv2 nozeros length ", nozeros.length);
-
-		var mat = new Matrix(null, [mat1.shape[0] + mat2.shape[0] - 1, mat1.shape[1] + mat2.shape[1] - 1], mat1.datatype);
-		for (var i=0; i<mat.shape[0]; i++) {
-			for (var j=0; j<mat.shape[1]; j++) {
-				var sum = 0;
-				// for (var k=0; k<mat2.shape[0]; k++) {
-				// 	for (var l=0; l<mat2.shape[1]; l++) {
-				// 		sum += mat2.get([k, l])*mat1_ext.get([k+i, l+j]);
-				// 	}
-				// }
-				for(var k=0; k<nozeros.length; k++) {
-					// sum += nozeros[k][2]*mat1_ext.get([nozeros[k][0] + i, nozeros[k][1]+j]);
-					sum += mat1_ext.get([nozeros[k][0] + i, nozeros[k][1]+j]);	//去除一个乘法减少计算量
-				}
-				mat.set([i, j], sum);
-			}
-		}
+		console.log("conv2 nozeros length ", nozeros.length, "ones length", ones.length);
 
 		if (shape == "full") {
+
+			var mat = new Matrix(null, [mat1.shape[0] + mat2.shape[0] - 1, mat1.shape[1] + mat2.shape[1] - 1], mat1.datatype);
+			for (var i=0; i<mat.shape[0]; i++) {
+				for (var j=0; j<mat.shape[1]; j++) {
+					var sum = 0;
+					// for (var k=0; k<mat2.shape[0]; k++) {
+					// 	for (var l=0; l<mat2.shape[1]; l++) {
+					// 		sum += mat2.get([k, l])*mat1_ext.get([k+i, l+j]);
+					// 	}
+					// }
+					for(var k=0; k<ones.length; k++) {
+						sum += mat1_ext.get([ones[k][0] + i, ones[k][1]+j]);	//去除一个乘法减少计算量
+					}
+					for(var k=0; k<nozeros.length; k++) {
+						sum += nozeros[k][2]*mat1_ext.get([nozeros[k][0] + i, nozeros[k][1]+j]);
+					}
+					mat.set([i, j], sum);
+				}
+			}
 			return mat;
 		}
 		else if (shape == "same") {
+			
 			r1 = parseInt((mat2.shape[0]-1)/2), c1 = parseInt((mat2.shape[1]-1)/2);
-			var rmat = new Matrix(null, mat1.shape, mat1.datatype);
-			for (var i=0; i<rmat.shape[0]; i++) {
-				for (var j=0; j<rmat.shape[1]; j++) {
-					rmat.set([i, j], mat.get([i+r1, j+c1]));
+			var mat = new Matrix(null, mat1.shape, mat1.datatype);
+			for (var i=0; i<mat.shape[0]; i++) {
+				for (var j=0; j<mat.shape[1]; j++) {
+					var sum = 0;
+					var ri = i + r1, rj = j + c1;
+					for(var k=0; k<ones.length; k++) {
+						sum += mat1_ext.get([ones[k][0] + ri, ones[k][1] + rj]);	//去除一个乘法减少计算量
+					}
+					for(var k=0; k<nozeros.length; k++) {
+						sum += nozeros[k][2]*mat1_ext.get([nozeros[k][0] + ri, nozeros[k][1] + rj]);
+					}
+					mat.set([i, j], sum);
 				}
 			}
-			return rmat;
+			return mat;
 		}
 		else {
 			throw "conv2 unkonwn shape";
