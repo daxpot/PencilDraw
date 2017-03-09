@@ -7,7 +7,9 @@ PencilDraw是在论文[Lu C, Xu L, Jia J. Combining sketch and tone for pencil d
 
 最近看到有同学用python实现了这一算法[pencil-python By duduainankai](https://github.com/duduainankai/pencil-python),但是该程序处理一张照片的时间仍然比较长，毕竟做那么多次卷积时间复杂度摆在那里，所以这么大的计算量部署在服务器承受不住，因此实现了一个JavaScript的版本，希望把计算放在客户端，本来寄希望于能在5秒内处理一张图片，然而实际结果暂时还在10秒以上，后续考虑使用GPU计算，以及优化程序。
 实际应用中去除了方向矩阵卷积的乘法，时间降到了3-4秒左右。
+
 2017-03-09
+
 合并卷积计算与张量切片赋值，示例程序执行时间降到2s
 ## 效果
 实现出来的效果和[@duduainankai](https://github.com/duduainankai/pencil-python)的效果几乎一致
