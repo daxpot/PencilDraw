@@ -101,12 +101,13 @@ PencilDraw.prototype = {
 	    for (var n=0; n<8; n++) {
 	    	//G[:, :, n] = signal.convolve2d(Imag, L[:, :, n], "same")    # eq.2
 	    	var Ln = L.third_slice(n);
-	    	var Gn = MatLib.conv2(imag, Ln, "same")    // eq.2
-	    	for (var i=0; i<Gn.shape[0]; i++) {
-	    		for (var j=0; j<Gn.shape[1]; j++) {
-	    			G.set([i, j, n], Gn.get([i, j]))
-	    		}
-	    	}
+	    	// var Gn = MatLib.conv2(imag, Ln, "same")    // eq.2
+	    	// for (var i=0; i<Gn.shape[0]; i++) {
+	    	// 	for (var j=0; j<Gn.shape[1]; j++) {
+	    	// 		G.set([i, j, n], Gn.get([i, j]))
+	    	// 	}
+	    	// }
+	    	MatLib.specil_conv2(imag, Ln, G, n);
 	    }
 	    return G;
 	},
@@ -132,13 +133,14 @@ PencilDraw.prototype = {
 		for (var n=0; n<8; n++) {
 			//Spn[:, :, n] = signal.convolve2d(C[:, :, n], L[:, :, n], "same")
 			var Ln = L.third_slice(n);
-			var Cn = C.third_slice(n);
-			var Spnn = MatLib.conv2(Cn, Ln, "same")    // eq.2
-			for (var i=0; i<Spnn.shape[0]; i++) {
-				for (var j=0; j<Spnn.shape[1]; j++) {
-					Spn.set([i, j, n], Spnn.get([i, j]))
-				}
-			}
+			// var Cn = C.third_slice(n);
+			// var Spnn = MatLib.conv2(Cn, Ln, "same")    // eq.2
+			// for (var i=0; i<Spnn.shape[0]; i++) {
+			// 	for (var j=0; j<Spnn.shape[1]; j++) {
+			// 		Spn.set([i, j, n], Spnn.get([i, j]))
+			// 	}
+			// }
+			MatLib.specil_conv2(C, Ln, Spn, n);
 		}
 		return Spn;
 	},

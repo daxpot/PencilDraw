@@ -369,7 +369,7 @@ var MatLib = {
 			return mat;
 		}
 		else if (shape == "same") {
-			
+
 			r1 = parseInt((mat2.shape[0]-1)/2), c1 = parseInt((mat2.shape[1]-1)/2);
 			var mat = new Matrix(null, mat1.shape, mat1.datatype);
 			for (var i=0; i<mat.shape[0]; i++) {
@@ -389,6 +389,41 @@ var MatLib = {
 		}
 		else {
 			throw "conv2 unkonwn shape";
+		}
+	},
+
+	specil_conv2: function(mat1, mat2, out, n) {
+		//该函数简化计算步骤，实际为公式   out[:, :, n] = signal.convolve2d(mat1[:, :, n], mat2, "same")
+
+		var r1 = (mat2.shape[0]-1), c1 = (mat2.shape[1]-1);
+
+		mat2 = MatLib.rot180(mat2);								//mat2选择180°
+
+		//考虑mat2大部分都是0，因此简化计算量
+		var ones = []; 	   //记录mat2中1的元素, mat2中的元素非0即1
+		for (var k=0; k<mat2.shape[0]; k++) {
+			for (var l=0; l<mat2.shape[1]; l++) {
+				var v = mat2.get([k, l]);
+				if(v != 0) {
+					ones.push([k, l, v]);
+				}
+			}
+		}
+		console.log("conv2 ones length", ones.length);
+
+		var r2 = parseInt((mat2.shape[0]-1)/2) - r1, c2 = parseInt((mat2.shape[1]-1)/2) - c1;
+		for (var i=0; i<out.shape[0]; i++) {
+			for (var j=0; j<out.shape[1]; j++) {
+				var sum = 0;
+				var ri = i + r2, rj = j + c2;
+				for(var k=0; k<ones.length; k++) {
+					var r3 = ones[k][0] + ri, c3 = ones[k][1] + rj;
+					if(r3 >= 0 && r3 < mat1.shape[0] && c3 >= 0 && c3 < mat1.shape[1]) {
+						sum += mat1.get([r3, c3, n]);
+					}
+				}
+				out.set([i, j, n], sum);
+			}
 		}
 	}
 }
