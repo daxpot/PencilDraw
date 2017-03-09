@@ -40,7 +40,6 @@ PencilDraw.prototype = {
 
 	_img2double: function(mat) {
 		var min = mat.min();
-		min = 2;
 		var max = mat.max();
 		var dis = max-min;
 		var m = mat.shape[0], n = mat.shape[1];
