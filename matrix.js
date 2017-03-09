@@ -336,10 +336,10 @@ var MatLib = {
 		for (var k=0; k<mat2.shape[0]; k++) {
 			for (var l=0; l<mat2.shape[1]; l++) {
 				var v = mat2.get([k, l]);
-				if(v == 1) {
+				if (v == 1) {
 					ones.push([k, l, v]);
 				}
-				else if(v!= 0) {
+				else if (v!= 0) {
 					nozeros.push([k, l, v]);
 				}
 			}
@@ -404,7 +404,7 @@ var MatLib = {
 		for (var k=0; k<mat2.shape[0]; k++) {
 			for (var l=0; l<mat2.shape[1]; l++) {
 				var v = mat2.get([k, l]);
-				if(v != 0) {
+				if (v != 0) {
 					ones.push([k, l, v]);
 				}
 			}
@@ -416,9 +416,9 @@ var MatLib = {
 			for (var j=0; j<out.shape[1]; j++) {
 				var sum = 0;
 				var ri = i + r2, rj = j + c2;
-				for(var k=0; k<ones.length; k++) {
+				for (var k=0; k<ones.length; k++) {
 					var r3 = ones[k][0] + ri, c3 = ones[k][1] + rj;
-					if(r3 >= 0 && r3 < mat1.shape[0] && c3 >= 0 && c3 < mat1.shape[1]) {
+					if (r3 >= 0 && r3 < mat1.shape[0] && c3 >= 0 && c3 < mat1.shape[1]) {
 						sum += mat1.get([r3, c3, n]);
 					}
 				}

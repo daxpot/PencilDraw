@@ -11,7 +11,7 @@ var PencilDraw = function(options) {
 	this._drawing = false
     this._img.onload = function(){
     	this._loaded = true;
-    	if(this._drawcanvas) {
+    	if (this._drawcanvas) {
     		this.draw(this._drawcanvas);
     	}
 
@@ -117,7 +117,7 @@ PencilDraw.prototype = {
 	    	for (var i=0; i<C.shape[0]; i++) {
 	    		for (var j=0; j<C.shape[1]; j++) {
 	    			var v = 0;
-	    			if(Gindex.get([i, j]) == n) {
+	    			if (Gindex.get([i, j]) == n) {
 	    				v = imag.get([i, j]);
 	    			}
 	    			C.set([i, j, n], v);
@@ -148,17 +148,22 @@ PencilDraw.prototype = {
 		var max = Sp.data[0], min = max;
 		var S = new Matrix(null, Sp.shape, Sp.datatype);
 		for (var i=0;i<Sp.size;i++) {
-			if(Sp.data[i] > max) {
+			if (Sp.data[i] > max) {
 				max = Sp.data[i];
 			}
-			if(Sp.data[i] < min) {
+			if (Sp.data[i] < min) {
 				min = Sp.data[i];
 			}
 		}
 		var dis = max - min;
 		var per = max/dis;
 		for (var i=0;i<Sp.size;i++) {
-			S.data[i] = per-Sp.data[i]/dis;
+			if (this._gammaS == 1) {
+				S.data[i] = per-Sp.data[i]/dis;
+			}
+			else {
+				S.data[i] = Math.pow(per-Sp.data[i]/dis, this._gammaS);
+			}
 		}
 		return S;
 	},
@@ -194,10 +199,10 @@ PencilDraw.prototype = {
 	},
 
 	draw: function(canvas) {
-		if(this._drawing) {
+		if (this._drawing) {
 			return;
 		}
-		if(this._loaded == false) {
+		if (this._loaded == false) {
 			this._drawcanvas = canvas;
 			return;
 		}
@@ -211,8 +216,8 @@ PencilDraw.prototype = {
 
         var J = this._img2gray(imgdata);
         var S = this._getS(J);
-        for(var i=0; i<S.shape[0]; i++) {
-        	for(var j=0; j<S.shape[1]; j++) {
+        for (var i=0; i<S.shape[0]; i++) {
+        	for (var j=0; j<S.shape[1]; j++) {
         		var index = i*S.shape[1] + j;
         		var index2 = 4*index;
         		imgdata.data[index2] = S.data[index]*255;
