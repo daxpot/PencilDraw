@@ -12,7 +12,8 @@ var PencilDraw = function(options) {
     this._img.onload = function(){
     	this._loaded = true;
     	if (this._drawcanvas) {
-    		this.draw(this._drawcanvas);
+    		// this.drawS(this._drawcanvas);
+    		this.test(this._drawcanvas);
     	}
 
     }.bind(this);
@@ -20,6 +21,8 @@ var PencilDraw = function(options) {
 
     }.bind(this);
 	this._img.src = this._url;
+
+	this._loadTexture();
 }
 
 PencilDraw.prototype = {
@@ -198,7 +201,7 @@ PencilDraw.prototype = {
 		return S;
 	},
 
-	draw: function(canvas) {
+	drawS: function(canvas) {
 		if (this._drawing) {
 			return;
 		}
@@ -232,5 +235,59 @@ PencilDraw.prototype = {
         context.putImageData(imgdata, 0, 0, 0, 0, w, h);
  		var et = new Date().getTime();
  		console.log("time", (et-st)/1000, "seconds");
+	},
+
+	_getT: function(J, type) {
+		var Jadjusted = MatLib.natural_histogram_matching(J, type, this._gammaI);// ** gammaI
+
+		var texture = this._textureImg.child("99:-100", "99:-100");
+		var texture_resize_ratio = 0.2;
+		var ratio = texture_resize_ratio * Math.min(J.shape[0], J.shape[1]) / 1024.0;
+
+	},
+
+	_loadTexture: function() {
+		if (window.TextureImg) {
+			this._textureImg = window.TextureImg;
+			return;
+		}
+
+		var img = new Image();
+		img.src = "texture.jpg";
+		img.onload = function() {
+			// var canvas = document.createElement("canvas");
+			// canvas.width = img.naturalWidth;
+			// canvas.height = img.naturalHeight;
+			// var context = canvas.getContext("2d");
+			// context.drawImage(img, 0, 0);
+			// var imgdata = context.getImageData(0, 0, canvas.width, canvas.height);
+			window.TextureImg = img; //this._img2gray(imgdata);
+			this._textureImg = window.TextureImg;
+		}.bind(this);
+
+		img.onerror = function() {
+			throw "texture load error";
+		}
+	},
+
+	test: function(canvas) {
+
+		if (!this._textureImg) {		//等待texture加载完毕后再计算。
+			setTimeout(function() {
+				this.test(canvas);
+			}.bind(this), 500);
+			return;
+		}
+
+ 		var st = new Date().getTime();
+		var w = this._img.naturalWidth;
+		var h = this._img.naturalHeight;
+		this._canvas.width = w;
+		this._canvas.height = h;
+        this._context.drawImage(this._img, 0, 0);
+        var imgdata = this._context.getImageData(0, 0, w, h);
+
+        var J = this._img2gray(imgdata);
+        var T = this._getT(J, "colour");
 	}
 }

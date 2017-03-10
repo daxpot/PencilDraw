@@ -61,16 +61,16 @@ Matrix.prototype = {
 
 	get: function(suffix) {
 		var index = this._getindex(suffix);
-		// if (isNaN(index)) {
-		// 	throw "suffix type is not support";
-		// }
+		if (isNaN(index)) {
+			throw "suffix type is not support";
+		}
 		return this.data[index];
 	},
 
 	set: function(suffix, value) {
-		// if (isNaN(value)) {
-		// 	throw "NaN value error";
-		// }
+		if (isNaN(value)) {
+			throw "NaN value error";
+		}
 		var index = this._getindex(suffix);
 		this.data[index] = value;
 	},
@@ -180,7 +180,11 @@ Matrix.prototype = {
 
 	sum: function(axis) {		//暂时只支持3维矩阵
 		if (axis == undefined) {
-
+			var sum = 0;
+			for(var i=0; i<this.size; i++) {
+				sum += this.data[i];
+			}
+			return sum;
 		} 
 		else if (!this.shape[axis]) {
 			throw "unkonwn axis";
@@ -425,5 +429,82 @@ var MatLib = {
 				out.set([i, j, n], sum);
 			}
 		}
+	},
+
+
+	/*  get t */
+	natural_histogram_matching: function(I, type, gammaI) {
+		type == undefined ? type = "black" : true;
+
+		var heaviside = function(x) {
+			return x >= 0 ? x : 0;
+		}
+
+		var p = function(x, type) {
+			var p1x = 0.11111111111111111 * Math.exp(-(256 - x) / 9.0) * heaviside(256 - x);
+			var p2x = 0.00833333333333333 * (heaviside(x - 105) - heaviside(x - 225));
+			var p3x = 0.12028562337275517 * Math.exp(-(Math.pow((x - 90), 2)) / 242.0);
+			if (type == "colour") {
+				return 62*p1x + 30*p2x + 5*p3x;
+			}
+			else {
+				return 76*p1x + 22*p2x + 2*p3x;
+			}
+		}
+
+		// 计算I的直方图, po表示每个灰度值对应的像素点个数, ho为累计值
+		// Prepare the histogram of image 'I', which is 'ho'
+		var ho = new Matrix(null, [1, 256]);
+		var po = new Matrix(null, [1, 256]);
+
+
+		var histo = new Matrix(null, [1, 256]);
+		var prob = new Matrix(null, [1, 256]);
+		var sum = 0;
+
+		//
+		for (var i=0; i<I.shape[0]; i++) {
+			for (var j=0; j<I.shape[1]; j++) {
+				po.data[I.get([i, j])]++;
+			}
+		}
+
+		for (var i=0; i<256; i++) {
+			prob.data[i] = p(i, type);
+			sum += prob.data[i];
+		}
+
+		//
+		for (var i=0; i<256; i++) {
+			prob.data[i] = prob.data[i]/sum;
+			po.data[i] = po.data[i]/I.size;
+		}
+
+		ho.data[0] = po.data[0];
+		histo.data[0] = prob.data[0];
+
+		for (var i=1; i<256; i++) {
+			ho.data[i] = ho.data[i-1] + po.data[i];
+			histo.data[i] = histo.data[i-1] + prob.data[i];
+		}
+
+		// 直方图的匹配过程, 修正图片中某个像素点为其y值与正常图片中最接近的那个像素点
+		// Do the histogram matching
+		var Iadjusted = new Matrix(null, [I.shape[0], I.shape[1]]);
+
+		for (var i=0; i<I.shape[0]; i++) {
+			for (var j=0; j<I.shape[1]; j++) {
+				var histogram_value = ho.data[I.get([i, j])];
+				var index = 0;
+				for (var k = 0;k<histo.size;k++) {
+					if (Math.abs(histo.data[k] - histogram_value) < Math.abs(histo.data[index] - histogram_value)) {
+						index = k;
+					}
+				}
+				Iadjusted.set([i, j], Math.pow(index/255, gammaI));
+			}
+		}
+		return Iadjusted;
+
 	}
 }

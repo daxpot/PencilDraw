@@ -14,9 +14,11 @@
  	<canvas id="test"></canvas>
  	<script type="text/javascript">
  		p = new PencilDraw({
- 			"url": "58.jpg"
+ 			"url": "58.jpg",
+ 			"gammaS": 1,
+ 			"canvas": document.getElementById("test")
  		});
- 		p.draw(document.getElementById("test"));
+ 		// p.drawS(document.getElementById("test"));
  	</script>
  </body>
 </html>
