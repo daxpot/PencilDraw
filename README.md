@@ -1,6 +1,7 @@
 # JavaScript PencilDraw
 
 ## 简介
+
 PencilDraw是在论文[Lu C, Xu L, Jia J. Combining sketch and tone for pencil drawing production[C]](http://www.cse.cuhk.edu.hk/leojia/projects/pencilsketch/pencil_drawing.htm)中提出的图像素描风格生成的算法。
 
 去年看到用matlab实现的版本，分别是 [pencil By fumin](https://github.com/fumin/pencil) 和 [PencilDrawing by candycat1992](https://github.com/candycat1992/PencilDrawing)，当时想实现一个python版本用于部署在公司的项目上，然而matlab中的函数实在没能力转成python版本，因此放弃了。
@@ -11,7 +12,9 @@ PencilDraw是在论文[Lu C, Xu L, Jia J. Combining sketch and tone for pencil d
 2017-03-09
 
 合并卷积计算与张量切片赋值，示例程序执行时间降到2s
+
 ## 效果
+
 实现出来的效果和[@duduainankai](https://github.com/duduainankai/pencil-python)的效果几乎一致
 目前只实现了获取S图, T图和最终效果图后续补充。
 
@@ -19,7 +22,9 @@ PencilDraw是在论文[Lu C, Xu L, Jia J. Combining sketch and tone for pencil d
 	<img src="58.jpg" height="300"/>
 	<img src="58_s.jpg" height="300"/>
 </div>
+
 ## 运行
+
 ``` html
 <script type="text/javascript" src="matrix.js"></script>
 <script type="text/javascript" src="pencil.js"></script>
@@ -32,6 +37,7 @@ PencilDraw是在论文[Lu C, Xu L, Jia J. Combining sketch and tone for pencil d
  </script>
 ```
 [示例程序](http://zengkv.com/PencilDraw/)
+
 ## 引用
 
 [1] [Lu C, Xu L, Jia J. Combining sketch and tone for pencil drawing production[C]](<http://www.cse.cuhk.edu.hk/leojia/projects/pencilsketch/pencil_drawing.htm>)
